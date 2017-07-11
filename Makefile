@@ -5,10 +5,9 @@ LD = ld
 
 SRCDIR       := src
 TARGETDIR    := target
-BUILDDIR     := target/object
+BUILDDIR     := build
+INITRDDIR    := initrd
 INCLUDEDIRS  := src
-INITRD       := src/initrd
-ISODIR       := src/isord
 
 KERNEL_NAME  := nemo-x86
 
@@ -37,7 +36,7 @@ iso: ${TARGETDIR}/${KERNEL_NAME}.iso
 syms: ${TARGETDIR}/${KERNEL_NAME}.sym
 
 clean:
-	rm -rf ${TARGETDIR}
+	rm -rf ${TARGETDIR} ${BUILDDIR}
 
 # builtin rules
 
@@ -47,6 +46,10 @@ ${BUILDDIR}/%.d: ${SRCDIR}/%.c
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.T > $@
 	rm -f $@.T
 
+${BUILDDIR}/%: ${SRCDIR}/%.in
+	${dirguard}
+	${PP} ${PPFLAGS} $< | grep -v '^#' > $@
+
 ${BUILDDIR}/%.c.o: ${SRCDIR}/%.c
 	${dirguard}
 	${CC} ${CFLAGS} -c $< -o $@
@@ -55,33 +58,30 @@ ${BUILDDIR}/%.S.o: ${SRCDIR}/%.S
 	${dirguard}
 	${CC} ${CFLAGS} -c $< -o $@
 
-# grep -v is to pull out the directives included by cpp
-${BUILDDIR}/%.ld: ${SRCDIR}/%.ld.in
-	${dirguard}
-	${PP} ${PPFLAGS} $< | grep -v '^#' > $@
+# targets
 
-# kernel
 ${TARGETDIR}/${KERNEL_NAME}: ${BUILDDIR}/link.ld ${modules:%=${BUILDDIR}/%.o}
+	${dirguard}
 	${LD} ${LDFLAGS} -T $^ -o $@
 
-# debugging symbols, preprocessed for bochs
 ${TARGETDIR}/${KERNEL_NAME}.sym: ${TARGETDIR}/${KERNEL_NAME}
+	${dirguard}
 	nm $^ | awk '{print 0x$$1" "$$3 }' > $@
 
-# initrd (minus boot stuff)
-${TARGETDIR}/${KERNEL_NAME}.initrd: ${shell find ${SRCDIR}/initrd -type f}
-	tar -C ${SRCDIR}/initrd -chf $@ ${patsubst ${SRCDIR}/initrd/%,%,$<}
+${TARGETDIR}/${KERNEL_NAME}.initrd: ${shell find ${INITRDDIR} -type f}
+	${dirguard}
+	tar -C ${INITRDDIR} -chf $@ ${patsubst ${INITRDDIR}/%,%,$<}
 
-# iso stuff
-
-${ISODIR}/boot/kernel: ${TARGETDIR}/${KERNEL_NAME}
+${TARGETDIR}/boot/grub/grub.cfg: ${BUILDDIR}/grub.cfg
+	${dirguard}
 	cp $^ $@
 
-${ISODIR}/boot/initrd: ${TARGETDIR}/${KERNEL_NAME}.initrd
-	cp $^ $@
-
-${TARGETDIR}/${KERNEL_NAME}.iso: ${ISODIR}/boot/kernel ${ISODIR}/boot/initrd ${ISODIR}/boot/grub/grub.cfg
-	grub-mkrescue -o $@ ${ISODIR}
+# the actual iso
+${TARGETDIR}/${KERNEL_NAME}.iso: \
+	${TARGETDIR}/boot/grub/grub.cfg \
+	${TARGETDIR}/${KERNEL_NAME} \
+	${TARGETDIR}/${KERNEL_NAME}.initrd
+	grub-mkrescue -o $@ -m objects ${TARGETDIR}
 
 # include the autogen dependency targets
 # wildcard them because we don't do dependency stuff for non-c files
