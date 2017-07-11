@@ -3,13 +3,16 @@
 
         // reserved data space 
         .section .bss
-        .align   0x1000 
-pagedir_top:
-        .space 1024 * 4, 0x00
+        .align   0x10 
 stack_top:
         .space STACK_SIZE, 0x00
 heap_top:
         .space HEAP_SIZE, 0x00
+
+        .section .data
+        .align 0x1000
+pagedir:
+        .space 1024 * 4, 0x00000000
 
         // code
         .section .text
@@ -32,10 +35,15 @@ _start:
         // enable paging
         // along with PSE (so we can use 4Mb pages)
 
+        physaddr $pagedir, %eax
+
         // install identity map
-        physaddr $pagedir_top, %eax
-        movl $0x00000083, (%eax)
-        movl $0x00000083, (KERNEL_PAGE_INDEX * 4)(%eax)
+        movl $0x00000083,  (%eax)
+        movl $0x00000083,  (KERNEL_PAGE_INDEX * 4)(%eax)
+
+        // install recursive mapping
+        movl %eax,  (1023 * 4)(%eax)
+        orl  $0x01, (1023 * 4)(%eax)
 
         // drop the pagedir into cr3
         mov %eax, %cr3       

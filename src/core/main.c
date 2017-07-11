@@ -1,14 +1,12 @@
-#include <stdlib/stdlib.h>
 #include <ext/multiboot.h>
-
-extern void _panic();
-void kpanic() {
-  return _panic();
-}
+#include <stdlib/stdlib.h>
+#include <kernel/kernel.h>
 
 void kernel_main(uint32_t bootmagic, multiboot_info_t *bootinfo) {
   if (bootmagic != MULTIBOOT_BOOTLOADER_MAGIC)
-    _panic();
+    kpanic("bootmagic error! %h", bootmagic);
+
+  kprintf("Hello?\n");
 
   // todo:
   // setup gdt
