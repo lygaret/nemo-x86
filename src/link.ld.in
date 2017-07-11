@@ -1,0 +1,26 @@
+#define ASM_FILE 1
+#include <core/boot.h>
+
+VIRT_BASE = KERNEL_VIRT_BASE;
+PHYS_ADDR = KERNEL_PHYS_ADDR;
+
+ENTRY(_start)
+
+SECTIONS {
+    . = VIRT_BASE + PHYS_ADDR;
+
+    .text ALIGN(4K) : AT(ADDR(.text) - VIRT_BASE) {
+	    *(.multiboot)
+	    *(.text*)
+    }
+
+    .data ALIGN(4K) : AT(ADDR(.data) - VIRT_BASE) {
+        *(.data*)
+    }
+
+    .bss ALIGN(4K) : AT(ADDR(.bss) - VIRT_BASE) {
+        _sbss = .;
+        *(COMMON)
+        *(.bss)
+    }
+}
