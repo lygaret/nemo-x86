@@ -1,5 +1,5 @@
 #define ASM_FILE 1
-#include <core/boot.h>
+#include <system/defines.h>
 
 ENTRY(_start)
 

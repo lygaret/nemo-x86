@@ -1,5 +1,5 @@
-#ifndef __core_boot_h
-#define __core_boot_h
+#ifndef __core_sysdef_h
+#define __core_sysdef_h
 
 #define VIRT_BASE   0xE0000000
 #define PHYS_ADDR   0x00100000
@@ -9,6 +9,6 @@
 #define HEAP_SIZE          0x4000 // 16k
 
 #ifndef ASM_FILE
+#endif // ASM_FILE
 
-#endif  // ASM_FILE
-#endif  // __core_boot_h
+#endif

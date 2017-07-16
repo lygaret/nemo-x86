@@ -1,6 +1,6 @@
 #include <stdlib/stdlib.h>
+#include <system/system.h>
 #include <kernel/kernel.h>
-#include <core/console.h>
 
 /// printf
 void kprintf(const char* restrict format, ...) {

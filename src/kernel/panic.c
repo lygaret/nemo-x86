@@ -1,6 +1,6 @@
 #include <stdlib/stdlib.h>
 #include <kernel/kernel.h>
-#include <core/console.h>
+#include <system/system.h>
 
 extern void _panic();
 void kpanic(const char * restrict format, ...) {

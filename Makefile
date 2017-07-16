@@ -12,7 +12,7 @@ INCLUDEDIRS  := src
 
 KERNEL_NAME  := nemo-x86
 
-IFLAGS   = ${INCLUDEDIRS:%=-I %}
+IFLAGS   = ${INCLUDEDIRS:%=-I%}
 ASFLAGS  = ${IFLAGS}
 LDFLAGS  = -m elf_i386 ${IFLAGS}
 PPFLAGS  = -E -nostdinc -x c ${IFLAGS}

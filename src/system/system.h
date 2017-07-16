@@ -1,6 +1,7 @@
-#ifndef __kernel_console_h__
-#define __kernel_console_h__
+#ifndef __core_core_h__
+#define __core_core_h__
 
+#include <system/defines.h>
 #include <stdlib/stdlib.h>
 
 typedef uint8_t console_attr_t;
