@@ -4,6 +4,7 @@ PP = clang
 LD = ld
 
 SRCDIR       := src
+TESTDIR      := test
 TARGETDIR    := target
 BUILDDIR     := build
 INITRDDIR    := initrd
@@ -28,12 +29,15 @@ modules  = \
 # ensure that the build subdirectory exists
 dirguard  = @mkdir -p ${@D}
 
-.PHONY: all iso syms clean
+.PHONY: all iso syms test clean
 .ONESHELL:
 
-all: iso syms
-iso: ${TARGETDIR}/${KERNEL_NAME}.iso
+all:  iso syms
+iso:  ${TARGETDIR}/${KERNEL_NAME}.iso
 syms: ${TARGETDIR}/${KERNEL_NAME}.sym
+test: ${TESTDIR}/tests
+	${TESTDIR}/tests
+	echo $$?
 
 clean:
 	rm -rf ${TARGETDIR} ${BUILDDIR}
@@ -57,6 +61,11 @@ ${BUILDDIR}/%.c.o: ${SRCDIR}/%.c
 ${BUILDDIR}/%.S.o: ${SRCDIR}/%.S
 	${dirguard}
 	${CC} ${CFLAGS} -c $< -o $@
+
+# test targets
+
+${TESTDIR}/tests: | ${TARGETDIR}/${KERNEL_NAME}
+	${CC} ${IFLAGS}	${TESTDIR}/main.c -o $@
 
 # targets
 

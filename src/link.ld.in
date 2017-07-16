@@ -1,9 +1,6 @@
 #define ASM_FILE 1
 #include <core/boot.h>
 
-VIRT_BASE = KERNEL_VIRT_BASE;
-PHYS_ADDR = KERNEL_PHYS_ADDR;
-
 ENTRY(_start)
 
 SECTIONS {
