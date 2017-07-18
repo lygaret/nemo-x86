@@ -53,7 +53,7 @@ void kvprintf(const char * restrict format, va_list args) {
 
       int  num = va_arg(args, int);
       char buf[16];
-      itoa(num, 16, buf);
+      printint(num, 16, buf);
 
       prints("0x");
       prints(buf);
@@ -65,7 +65,7 @@ void kvprintf(const char * restrict format, va_list args) {
 
       unsigned long long num = va_arg(args, unsigned long long);
       char buf[16];
-      itoa(num, 16, buf);
+      printint(num, 16, buf);
 
       prints("0x");
       prints(buf);
@@ -77,7 +77,7 @@ void kvprintf(const char * restrict format, va_list args) {
 
       const int  num = va_arg(args, int);
       char buf[16];
-      itoa(num, 2, buf);
+      printint(num, 2, buf);
 
       prints("0b");
       prints(buf);
@@ -89,7 +89,7 @@ void kvprintf(const char * restrict format, va_list args) {
 
       const int  num = va_arg(args, int);
       char buf[16];
-      itoa(num, 10, buf);
+      printint(num, 10, buf);
 
       prints(buf);
     }

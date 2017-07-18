@@ -9,8 +9,8 @@
 #define unused(x) (void)(x)
 
 // string.c
-int atoi(const char * str, int base);
-void itoa(int n, int base, char outbuf[17]);
+int  parseint(const char * str, int base);
+void printint(int n, int base, char outbuf[17]);
 
 // mem.c
 void memzero(void * dest, size_t n);

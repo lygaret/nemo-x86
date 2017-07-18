@@ -15,7 +15,7 @@ void reverse(char str[], int length) {
   }
 }
 
-void itoa(int n, int base, char * str) {
+void printint(int n, int base, char * str) {
   int i = 0;
 
   // handle 0 explicitly
@@ -33,7 +33,7 @@ void itoa(int n, int base, char * str) {
   str[i] = '\0';
 }
 
-int atoi(const char *str, int base) {
+int parseint(const char *str, int base) {
   unsigned int size = 0;
   unsigned int count = 1;
   signed int sign = 1;

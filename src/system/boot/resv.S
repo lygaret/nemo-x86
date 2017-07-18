@@ -10,7 +10,10 @@ bootstack:
 
         .global bootpagedir
         .global bootpagetable
+        .global gdt
         .global gdt_ptr
+        .global idt
+        .global idt_ptr
 
         .align 0x10
 gdt:
@@ -22,6 +25,13 @@ gdt:
 gdt_ptr:
         .word gdt_ptr - gdt - 1
         .long gdt
+
+        .align 0x10
+idt:
+        .space 100 * 8
+idt_ptr:
+        .word idt_ptr - idt - 1
+        .long idt
 
         .align 0x1000                   // 4Mb pages,
 bootpagedir:

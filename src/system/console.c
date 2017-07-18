@@ -1,5 +1,5 @@
 #include <stdlib/stdlib.h>
-#include <system/system.h>
+#include <system/h/console.h>
 
 /// statically configured
 static console_t console = {

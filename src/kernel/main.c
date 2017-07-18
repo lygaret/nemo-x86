@@ -1,15 +1,17 @@
 #include <ext/multiboot.h>
-#include <stdlib/stdlib.h>
 #include <kernel/kernel.h>
+#include <stdlib/stdlib.h>
+#include <system/system.h>
 
 void kernel_main(uint32_t bootmagic, multiboot_info_t *bootinfo) {
   if (bootmagic != MULTIBOOT_BOOTLOADER_MAGIC)
     kpanic("bootmagic error! %h", bootmagic);
 
-  kprintf("Hello?\n");
+  pic_remap(32, 38);
+  isr_install();
 
-  // todo:
-  // setup gdt
-  // setup paging
-  // setup isrs/irq mapping/pic remap
+  enable_interrupts();
+  while(1) {
+    asm volatile ("hlt");
+  }
 }

@@ -35,6 +35,8 @@ _start:
         mov %ax, %ss
 
         // idt
+        cli
+        lidt idt_ptr
 
         // jump to c
         call kernel_main
