@@ -9,6 +9,7 @@ idt_flush:
         .macro isr_with_errcode num
         .global isr_\num
 isr_\num\():
+        cli
         push $\num
         jmp isr_common_stub
         .endm
@@ -17,6 +18,7 @@ isr_\num\():
         .macro isr_no_errcode num
         .global isr_\num
 isr_\num\():
+        cli
         push $0    // dummy error code
         push $\num // isr number
         jmp isr_common_stub
@@ -24,12 +26,16 @@ isr_\num\():
 
         // isr_common_stub(num, errcode) 
 isr_common_stub:
-        pusha           // push onto stack
-        push %esp       // stack is struct of registers, which is arg to isr
+        pusha
+
+        // pass stack pointer, (we have struct of regs)
+        push %esp
         call isr_dispatch
         pop %esp
-        popa
-        add $8, %esp    // clean up pushed error code and isr number
+
+        popa         
+        add $8, %esp // clean up pushed error code and isr number
+        sti          // re-enable interrupts (disabled in unique wrappers) 
         iret
 
         // exceptions

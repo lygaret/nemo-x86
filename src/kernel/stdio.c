@@ -1,6 +1,6 @@
 #include <stdlib/stdlib.h>
-#include <system/system.h>
-#include <kernel/kernel.h>
+#include <kernel/h/screen.h>
+#include <kernel/h/stdio.h>
 
 /// printf
 void kprintf(const char* restrict format, ...) {
@@ -52,10 +52,9 @@ void kvprintf(const char * restrict format, va_list args) {
       format++;
 
       int  num = va_arg(args, int);
-      char buf[16];
+      char buf[17];
       printint(num, 16, buf);
 
-      prints("0x");
       prints(buf);
     }
 
@@ -64,10 +63,9 @@ void kvprintf(const char * restrict format, va_list args) {
       format++;
 
       unsigned long long num = va_arg(args, unsigned long long);
-      char buf[16];
+      char buf[17];
       printint(num, 16, buf);
 
-      prints("0x");
       prints(buf);
     }
 
@@ -76,10 +74,9 @@ void kvprintf(const char * restrict format, va_list args) {
       format++;
 
       const int  num = va_arg(args, int);
-      char buf[16];
+      char buf[17];
       printint(num, 2, buf);
 
-      prints("0b");
       prints(buf);
     }
 
@@ -88,7 +85,7 @@ void kvprintf(const char * restrict format, va_list args) {
       format++;
 
       const int  num = va_arg(args, int);
-      char buf[16];
+      char buf[17];
       printint(num, 10, buf);
 
       prints(buf);

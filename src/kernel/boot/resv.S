@@ -1,4 +1,4 @@
-#include <system/defines.h>
+#include <defines.h>
 
         .section .bss
         .global bootstack
@@ -33,10 +33,10 @@ idt_ptr:
         .word idt_ptr - idt - 1
         .long idt
 
-        .align 0x1000                   // 4Mb pages,
+        .align 0x1000                     // 4Mb pages,
 bootpagedir:
-        .long 0x00000083                // 0x00000000 -> 0x00000000 - 0x0003FFFF
+        .long 0x00000083                  // 0x00000000 -> 0x00000000 - 0x0003FFFF
         .fill (PAGE_INDEX - 1), 4
-        .long 0x00000083                // 0xE0000000 -> 0x00000000 - 0x0003FFFF
-        .fill (1023 - PAGE_INDEX), 4
-        .long bootpagedir + 1           // recursive pagedir
+        .long 0x00000083                  // 0xE0000000 -> 0x00000000 - 0x0003FFFF
+        .fill (1023 - PAGE_INDEX - 1), 4
+        .long (bootpagedir - VIRT_BASE) + 1             // recursive pagedir

@@ -15,11 +15,11 @@
 
 // initialization commands
 
+#define ICW1_INIT       0x10 // initialization
 #define ICW1_ICW4       0x01 // icw4 (not) needed
 #define ICW1_SINGLE     0x02 // single (cascade) mode
 #define ICW1_INTERVAL4  0x04 // call address interval 4 (8)
 #define ICW1_LEVEL      0x08 // level triggered (edge mode)
-#define ICW1_INIT       0x10 // initialization
 
 #define ICW4_8086       0x01 // 8086/88 mode
 #define ICW4_AUTO       0x02 // auto (normal) eoi
@@ -27,5 +27,5 @@
 #define ICW4_BUF_MASTER 0x0c // buffered mode/master
 #define ICW4_SFNM       0x10 // special fully nested (not)
 
-void pic_remap(uint8_t, uint8_t);
+void pic_remap(uint8_t);
 void pic_sendeoi(uint8_t);

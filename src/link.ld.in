@@ -1,5 +1,5 @@
 #define ASM_FILE 1
-#include <system/defines.h>
+#include <defines.h>
 
 ENTRY(_start)
 
@@ -20,4 +20,6 @@ SECTIONS {
         *(COMMON)
         *(.bss)
     }
+
+    _kernend = . - VIRT_BASE;
 }

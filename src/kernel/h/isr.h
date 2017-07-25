@@ -1,13 +1,21 @@
-#ifndef __system_isr_h
-#define __system_isr_h
+#ifndef __kernel_isr_h
+#define __kernel_isr_h
 
 #include <stdlib/stdlib.h>
 
 typedef struct {
-  uint32_t ds;                                     // data segment selector
-  uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // pusha
-  uint32_t isrno, errcode;                         // wrapper args
-  uint32_t eip, cs, eflags, useresp, ss;           // pushed by cpu on interupt
+  /* saved registers */
+  uint32_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+  /* isr_stuff */
+  uint32_t trapno;
+  uint32_t errcode;
+  /* below here defined by x86 hardware */
+  uint32_t tf_eip;
+  uint32_t tf_cs;
+  uint32_t tf_eflags;
+  /* below only when crossing rings(e.g. user to kernel) */
+  uint32_t tf_esp;
+  uint16_t tf_ss;
 } __attribute__((packed)) isr_registers_t;
 
 typedef struct {
@@ -23,7 +31,7 @@ typedef void(*isr_handler_t)(isr_registers_t *);
 void enable_interrupts();
 void disable_interrupts();
 
-void isr_install();
+void isr_initialize();
 void isr_dispatch(isr_registers_t * regs);
 void isr_set_handler(unsigned int num, isr_handler_t handler);
 void irq_set_handler(unsigned int irq, isr_handler_t handler);

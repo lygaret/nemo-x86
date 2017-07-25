@@ -20,16 +20,21 @@ void printint(int n, int base, char * str) {
 
   // handle 0 explicitly
   if (n == 0) {
-    str[i]   = '0';
-    str[++i] = '\0';
-    return;
+    str[i++]   = '0';
   }
-
+  
   while(n > 0) {
     str[i++] = "0123456789abcdef"[n % base];
     n = n / base;
   }
 
+  if (base == 16) {
+    while ((i % 8) > 0) {
+        str[i++] = '0';
+    }
+  }
+
+  reverse(str, i);
   str[i] = '\0';
 }
 

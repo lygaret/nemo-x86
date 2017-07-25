@@ -1,15 +1,11 @@
-#include <system/h/ioport.h>
-#include <system/h/pic.h>
+#include <kernel/h/screen.h>
+#include <kernel/h/ioport.h>
+#include <kernel/h/pic.h>
 
 // master PIC vectors become offset1...offset1+7
-// slave PIC vectors become offset2...offset2+7
-void pic_remap(uint8_t offset1, uint8_t offset2) {
-  uint8_t a1, a2;
+// slave  PIC vectors become offset1+8...offset1+15
+void pic_remap(uint8_t offset1) {
 
-  // save masks
-  a1 = inb(PIC1_DATA);
-  a2 = inb(PIC2_DATA);
-  
   // initialization sequence
   outb(PIC1_COMMAND, ICW1_INIT + ICW1_ICW4);
   outb(PIC2_COMMAND, ICW1_INIT + ICW1_ICW4);
@@ -17,7 +13,7 @@ void pic_remap(uint8_t offset1, uint8_t offset2) {
 
   // icw2: vector offsets
   outb(PIC1_DATA, offset1);
-  outb(PIC2_DATA, offset2);
+  outb(PIC2_DATA, offset1 + 8);
   io_wait();
   
   // icw3: master/slave wiring
@@ -30,9 +26,9 @@ void pic_remap(uint8_t offset1, uint8_t offset2) {
   outb(PIC2_DATA, ICW4_8086);
   io_wait();
 
-  // restore masks
-  outb(PIC1_DATA, a1);
-  outb(PIC2_DATA, a2);
+  // null out data registers
+  outb(PIC1_DATA, 0);
+  outb(PIC2_DATA, 0);
   io_wait();
 }
 

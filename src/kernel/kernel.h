@@ -3,9 +3,16 @@
 
 #include <stdlib/stdlib.h>
 
-void kpanic(const char* restrict format, ...);
+#include <kernel/h/ioport.h>
+#include <kernel/h/isr.h>
+#include <kernel/h/pic.h>
+#include <kernel/h/pmm.h>
 
-void kprintf(const char* restrict format, ...);
-void kvprintf(const char* restrict format, va_list argp);
+#include <kernel/h/timer.h>
+#include <kernel/h/screen.h>
+#include <kernel/h/keyboard.h>
+
+#include <kernel/h/stdio.h>
+#include <kernel/h/panic.h>
 
 #endif

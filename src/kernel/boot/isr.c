@@ -1,13 +1,15 @@
-#include <system/system.h>
-#include <system/h/pic.h>
-#include <system/h/isr.h>
-#include <system/h/panic.h>
+#include <kernel/h/isr.h>
+#include <kernel/h/panic.h>
+#include <kernel/h/pic.h>
+#include <kernel/h/stdio.h>
 
 extern void idt_flush();
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags);
 
 inline void enable_interrupts()  { asm volatile ("sti"); }
 inline void disable_interrupts() { asm volatile ("cli"); }
+
+#define PIC_OFFSET 32
 
 isr_handler_t isr_handlers[48] = {
   0, 0, 0, 0, 0, 0, 0, 0,
@@ -42,40 +44,38 @@ char * exception_msgs[] = {
   "virtualization exception",
 };
 
-
 void isr_set_handler(unsigned int num, isr_handler_t handler) {
+  kprintf("setting isr handler\n");
   isr_handlers[num] = handler;
 }
 
 void irq_set_handler(unsigned int irq, isr_handler_t handler) {
-  isr_handlers[irq + 32] = handler;
+  kprintf("setting irq handler\n");
+  isr_handlers[PIC_OFFSET + irq] = handler;
 }
 
 void isr_dispatch(isr_registers_t * regs) {
-  disable_interrupts();
-  
-  isr_handler_t handler = isr_handlers[regs->isrno];
+  isr_handler_t handler = isr_handlers[regs->trapno];
   if (handler != NULL) {
     handler(regs);
   }
-
-  enable_interrupts();
   
   // irq from the pic
-  if (regs->isrno >= 32) {
-    pic_sendeoi(regs->isrno - 32);
+  if (regs->trapno >= PIC_OFFSET) {
+    pic_sendeoi(regs->trapno - PIC_OFFSET);
   }
 
   // exception
   // todo - should we panic on unhandled exceptions?
-  // todo - how do I use kpanic here, I'd like to get the messages and things
   else {
     if (handler == NULL)
-      panic(exception_msgs[regs->isrno]);
+      kpanic("unhandled exception: %s (error: 0x%h)", exception_msgs[regs->trapno], regs->errcode);
   }
 }
 
 void isr_install() {
+  pic_remap(PIC_OFFSET);
+
   idt_set_gate( 0, (uint32_t) isr_0, 0x08, 0x8E);
   idt_set_gate( 1, (uint32_t) isr_1, 0x08, 0x8E);
   idt_set_gate( 2, (uint32_t) isr_2, 0x08, 0x8E);
@@ -125,9 +125,7 @@ void isr_install() {
   idt_set_gate(46, (uint32_t) isr_46, 0x08, 0x8E);
   idt_set_gate(47, (uint32_t) isr_47, 0x08, 0x8E);
 
-  prints("installed isr gates\n");
   idt_flush();
-  prints("flushed isr gates\n");
 }
 
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags) {

@@ -1,5 +1,5 @@
 #define ASM_FILE 1
-#include <system/defines.h>
+#include <defines.h>
 #include <ext/multiboot.h>
 #include "./macros.inc"
 
