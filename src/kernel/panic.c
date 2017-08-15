@@ -2,7 +2,8 @@
 #include <kernel/h/stdio.h>
 #include <kernel/h/screen.h>
 
-extern void _panic();
+extern noreturn void _panic();
+
 void kpanic(const char * restrict format, ...) {
   va_list args;
   va_start(args, format);

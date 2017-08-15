@@ -5,6 +5,7 @@ ENTRY(_start)
 
 SECTIONS {
     . = VIRT_BASE + PHYS_ADDR;
+    kern_start = PHYS_ADDR;
 
     .text ALIGN(4K) : AT(ADDR(.text) - VIRT_BASE) {
 	    *(.multiboot)
@@ -21,5 +22,5 @@ SECTIONS {
         *(.bss)
     }
 
-    _kernend = . - VIRT_BASE;
+    kern_end = . - VIRT_BASE;
 }

@@ -8,3 +8,8 @@ void memzero(void * dest, size_t n) {
     } while (--n);
   }
 }
+
+// round up to the nearest address `align`
+uintptr_t ptralign(uintptr_t ptr, size_t align) {
+  return (ptr + (align - 1)) & -align;
+}

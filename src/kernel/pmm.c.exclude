@@ -1,50 +1,73 @@
 #include <ext/multiboot.h>
 #include <stdlib/stdlib.h>
+#include <kernel/h/isr.h>
 #include <kernel/h/panic.h>
 #include <kernel/h/pmm.h>
 #include <kernel/h/screen.h>
 #include <kernel/h/stdio.h>
 
-uintptr_t * pagedir = (uintptr_t *) 0xFFFFF000;
+uintptr_t * pagedir    = (uintptr_t *) 0xFFFFF000;
+uintptr_t * pagetables = (uintptr_t *) 0xFFC00000;
+
+extern uintptr_t * _kernend;
+
 uintptr_t pmm_free_stack = 0;
 unsigned  pmm_free_total = 0;
 
-extern uintptr_t * _kernend;
+// kernel alloc-only starts right after identity page mapping
+uintptr_t vmm_base = 0x00400000;
+
+void pmm_map_page(uintptr_t paddr, uintptr_t vaddr, unsigned flags) {
+  uintptr_t pdindex = vaddr >> 22;
+  uintptr_t ptindex = vaddr >> 12 & 0x03FF;
+
+  page_directory_t dir = bootpagedir[pdindex];
+  if (!dir.present) {
+    // allocate a page from the free list
+  }
+}
 
 static inline void flush_tlb(uintptr_t addr) {
    asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }
 
-// allocate a frame
-// todo - wrap with a mutex or something
-void pmm_alloc_frame(page_t *page, bool kernel, bool writeable) {
-  uintptr_t frameaddr = pmm_free_stack;
+void vmm_fault_handler(isr_registers_t *regs) {
+  bool present      = regs->errcode & 1;
+  bool write        = regs->errcode & 2;
+  bool user         = regs->errcode & 4;
+  bool reserved     = regs->errcode & 8;
+  bool instruction  = regs->errcode & 16;
 
-  if (frameaddr == 0) {
-    kpanic("out of free memory!");
+  uintptr_t address;
+  asm volatile ("movl %%cr2, %0" : "=r" (address));
+
+  kprintf("present: %B\n", present);
+  kprintf("write: %B\n", write);
+  kprintf("user: %B\n", user);
+  kprintf("reserved: %B\n", reserved);
+  kprintf("instruction: %B\n", instruction);
+  kprintf("address: 0x%h\n", address);
+
+  // the kernel gets whatever it wants
+  if (!user && !present) {
   }
 
-  page->present = 1;
-  page->rw      = writeable ? 1 : 0;
-  page->user    = kernel ? 0 : 1;
-  page->frame   = frameaddr;
-
-
+  kpanic("\n\nx.x");
 }
 
-// Function to deallocate a frame.
-void free_frame(page_t *page)
-{
-   u32int frame;
-   if (!(frame=page->frame))
-   {
-       return; // The given page didn't actually have an allocated frame!
-   }
-   else
-   {
-       clear_frame(frame); // Frame is now free again.
-       page->frame = 0x0; // Page now doesn't have a frame.
-   }
+void * kmalloc(uint32_t size, bool align, uintptr_t *phys) {
+  if (align && (vmm_base & 0xFFFFF000)) {
+    vmm_base &= 0xFFFFF000;
+    vmm_base += 0x1000;
+  }
+
+  if (phys != NULL) {
+    *phys = vmm_base;
+  }
+
+  uintptr_t tmp = vmm_base;
+  vmm_base += size;
+  return (void *)tmp;
 }
 
 void pmm_initialize(uintptr_t mmap_addr, size_t mmap_length) {
@@ -106,6 +129,9 @@ void pmm_initialize(uintptr_t mmap_addr, size_t mmap_length) {
   // done! clear out the temp pagedir
   pagedir[pdindex] = 0;
   flush_tlb(virtaddr);
+
+  // install the page fault handler
+  isr_set_handler(14, &vmm_fault_handler);
 
   kprintf(" ok! (%d total pages, %d total Mb)\n", pmm_free_total, (pmm_free_total * 0x4000) / 0x100000);
 }

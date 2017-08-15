@@ -46,6 +46,18 @@ void kvprintf(const char * restrict format, va_list args) {
       format++;
       prints(va_arg(args, const char*));
     }
+    
+    // a boolean value from args
+    else if (*format == 'B') {
+      format++;
+
+      const int  num = va_arg(args, int);
+      if (num) {
+        prints("true");
+      } else {
+        prints("false");
+      }
+    }
 
     // a hex number from args
     else if (*format == 'h') {
@@ -64,8 +76,9 @@ void kvprintf(const char * restrict format, va_list args) {
 
       unsigned long long num = va_arg(args, unsigned long long);
       char buf[17];
-      printint(num, 16, buf);
-
+      printint(num >> 32, 16, buf); // top 32bits
+      prints(buf);
+      printint(num & 0xFFFFFFFF, 16, buf); // bottom 32bits
       prints(buf);
     }
 

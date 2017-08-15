@@ -6,7 +6,8 @@
 #include <kernel/h/ioport.h>
 #include <kernel/h/isr.h>
 #include <kernel/h/pic.h>
-#include <kernel/h/pmm.h>
+
+#include <kernel/h/mem.h>
 
 #include <kernel/h/timer.h>
 #include <kernel/h/screen.h>

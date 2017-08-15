@@ -69,11 +69,11 @@ void isr_dispatch(isr_registers_t * regs) {
   // todo - should we panic on unhandled exceptions?
   else {
     if (handler == NULL)
-      kpanic("unhandled exception: %s (error: 0x%h)", exception_msgs[regs->trapno], regs->errcode);
+      kpanic("unhandled exception: %d:%s (error: 0x%h)", regs->trapno, exception_msgs[regs->trapno], regs->errcode);
   }
 }
 
-void isr_install() {
+void isr_initialize() {
   pic_remap(PIC_OFFSET);
 
   idt_set_gate( 0, (uint32_t) isr_0, 0x08, 0x8E);

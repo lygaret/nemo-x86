@@ -17,7 +17,7 @@ ASFLAGS  = ${IFLAGS}
 LDFLAGS  = -m elf_i386 ${IFLAGS}
 PPFLAGS  = -E -nostdinc -x c ${IFLAGS}
 CFLAGS   = -target i686-pc-none-elf -march=i686
-CFLAGS  += -nostdlib -ffreestanding
+CFLAGS  += -nostdlib -ffreestanding -g
 CFLAGS  += -Wall -Wextra ${IFLAGS}
 DEPFLAGS = ${IFLAGS} -MT ${@:%.d=%.o} -MM -MP -MF ${BUILDDIR}/$*.d.T
 
